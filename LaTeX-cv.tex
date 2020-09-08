@@ -1,0 +1,600 @@
+% vim: set textwidth=120:
+
+% Example CV based on the 1.5-column-cv template. Main features:
+\documentclass[a4paper,10pt]{article}
+
+
+% package imports
+% ---------------
+
+\usepackage[british]{babel} % for correct language and hyphenation and stuff
+\usepackage{calc}           % for easier length calculations (infix notation)
+\usepackage{enumitem}       % for configuring list environments
+\usepackage{fancyhdr}       % for setting header and footer
+\usepackage{fontspec}       % for fonts
+\usepackage{geometry}       % for setting margins (\newgeometry)
+\usepackage{graphicx}       % for pictures
+\usepackage{microtype}      % for microtypography stuff
+\usepackage{xcolor}         % for colours
+
+
+% margin and column widths
+% ------------------------
+
+% margins
+\newgeometry{left=15mm,right=15mm,top=15mm,bottom=15mm}
+
+% width of the gap between left and right column
+\newlength{\cvcolumngapwidth}
+\setlength{\cvcolumngapwidth}{3.5mm}
+
+% left column width
+\newlength{\cvleftcolumnwidth}
+\setlength{\cvleftcolumnwidth}{47mm}
+
+% right column width
+\newlength{\cvrightcolumnwidth}
+\setlength{\cvrightcolumnwidth}{\textwidth-\cvleftcolumnwidth-\cvcolumngapwidth}
+
+% set paragraph indentation to 0, because it screws up the whole layout otherwise
+\setlength{\parindent}{0mm}
+
+
+% style definitions
+% -----------------
+% style categories explanation:
+% * \cvnameXXX is used for the name;
+% * \cvsectionXXX is used for section names (left column, accompanied by a horizontal rule);
+% * \cvtitleXXX is used for job/education titles (right column);
+% * \cvdurationXXX is used for job/education durations (left column);
+% * \cvheadingXXX is used for headings (left column);
+% * \cvmainXXX (and \setmainfont) is used for main text;
+% * \cvruleXXX is used for the horizontal rules denoting sections.
+
+% font families
+\defaultfontfeatures{Ligatures=TeX} % reportedly a good idea, see https://tex.stackexchange.com/a/37251
+
+\newfontfamily{\cvnamefont}{Roboto Medium}
+\newfontfamily{\cvsectionfont}{Roboto Medium}
+\newfontfamily{\cvtitlefont}{Roboto Regular}
+\newfontfamily{\cvdurationfont}{Roboto Regular}
+\newfontfamily{\cvheadingfont}{Roboto Regular}
+\setmainfont{Roboto Light}
+
+% colours
+\definecolor{cvnamecolor}{HTML}{000000}
+\definecolor{cvsectioncolor}{HTML}{000000}
+\definecolor{cvtitlecolor}{HTML}{000000}
+\definecolor{cvdurationcolor}{HTML}{000000}
+\definecolor{cvheadingcolor}{HTML}{000000}
+\definecolor{cvmaincolor}{HTML}{000000}
+\definecolor{cvrulecolor}{HTML}{000000}
+
+\color{cvmaincolor}
+
+% styles
+\newcommand{\cvnamestyle}[1]{{\Large\cvnamefont\textcolor{cvnamecolor}{#1}}}
+\newcommand{\cvsectionstyle}[1]{{\cvsectionfont\textcolor{cvsectioncolor}{#1}}}
+\newcommand{\cvtitlestyle}[1]{{\large\cvtitlefont\textcolor{cvtitlecolor}{#1}}}
+\newcommand{\cvdurationstyle}[1]{{\small\cvdurationfont\textcolor{cvdurationcolor}{#1}}}
+\newcommand{\cvheadingstyle}[1]{{\normalsize\cvheadingfont\textcolor{cvheadingcolor}{#1}}}
+
+
+% inter-item spacing
+% ------------------
+
+% vertical space after personal info and standard CV items
+\newlength{\cvafteritemskipamount}
+\setlength{\cvafteritemskipamount}{5mm plus 1.25mm minus 1.25mm}
+
+% vertical space after sections
+\newlength{\cvaftersectionskipamount}
+\setlength{\cvaftersectionskipamount}{2mm plus 0.5mm minus 0.5mm}
+
+% extra vertical space to be used when a section starts with an item with a heading (e.g. in the skills section),
+% so that the heading does not follow the section name too closely
+\newlength{\cvbetweensectionandheadingextraskipamount}
+\setlength{\cvbetweensectionandheadingextraskipamount}{1mm plus 0.25mm minus 0.25mm}
+
+
+% intra-item spacing
+% ------------------
+
+% vertical space after name
+\newlength{\cvafternameskipamount}
+\setlength{\cvafternameskipamount}{3mm plus 0.75mm minus 0.75mm}
+
+% vertical space after personal info lines
+\newlength{\cvafterpersonalinfolineskipamount}
+\setlength{\cvafterpersonalinfolineskipamount}{2mm plus 0.5mm minus 0.5mm}
+
+% vertical space after titles
+\newlength{\cvaftertitleskipamount}
+\setlength{\cvaftertitleskipamount}{1mm plus 0.25mm minus 0.25mm}
+
+% value to be used as parskip in right column of CV items and itemsep in lists (same for both, for consistency)
+\newlength{\cvparskip}
+\setlength{\cvparskip}{0.5mm plus 0.125mm minus 0.125mm}
+
+% set global list configuration (use parskip as itemsep, and no separation otherwise)
+\setlist{parsep=0mm,topsep=0mm,partopsep=0mm,itemsep=\cvparskip}
+
+
+% CV commands
+% -----------
+
+% creates a "personal info" CV item with the given left and right column contents, with appropriate vertical space after
+% @param #1 left column content (should be the CV photo)
+% @param #2 right column content (should be the name and personal info)
+
+\newcommand{\cvpersonalinfo}[2]{
+    % left and right column
+    \begin{minipage}[t]{\cvleftcolumnwidth}
+        \vspace{0mm} % XXX hack to align to top, see https://tex.stackexchange.com/a/11632
+        \raggedleft #1
+    \end{minipage}% XXX necessary comment to avoid unwanted space
+    \hspace{\cvcolumngapwidth}% XXX necessary comment to avoid unwanted space
+    \begin{minipage}[t]{\cvrightcolumnwidth}
+        \vspace{0mm} % XXX hack to align to top, see https://tex.stackexchange.com/a/11632
+        #2
+    \end{minipage}
+
+    % space after
+    \vspace{\cvafteritemskipamount}
+}
+
+% typesets a name, with appropriate vertical space after
+% @param #1 name text
+\newcommand{\cvname}[1]{
+    % name
+    \cvnamestyle{#1}
+
+    % space after
+    \vspace{\cvafternameskipamount}
+}
+
+% typesets a line of personal info beginning with an icon, with appropriate vertical space after
+% @param #1 parameters for the \includegraphics command used to include the icon
+% @param #2 icon filename
+% @param #3 line text
+\newcommand{\cvpersonalinfolinewithicon}[3]{
+    % icon, vertically aligned with text (see https://tex.stackexchange.com/a/129463)
+    \raisebox{.5\fontcharht\font`E-.5\height}{\includegraphics[#1]{#2}}
+    % text
+    #3
+
+    % space after
+    \vspace{\cvafterpersonalinfolineskipamount}
+}
+
+% creates a "section" CV item with the given left column content, a horizontal rule in the right column, and with
+% appropriate vertical space after
+% @param #1 left column content (should be the section name)
+\newcommand{\cvsection}[1]{
+    % left and right column
+    \begin{minipage}[t]{\cvleftcolumnwidth}
+        \raggedleft\cvsectionstyle{#1}
+    \end{minipage}% XXX necessary comment to avoid unwanted space
+    \hspace{\cvcolumngapwidth}% XXX necessary comment to avoid unwanted space
+    \begin{minipage}[t]{\cvrightcolumnwidth}
+        \textcolor{cvrulecolor}{\rule{\cvrightcolumnwidth}{0.3mm}}
+    \end{minipage}
+
+    % space after
+    \vspace{\cvaftersectionskipamount}
+}
+
+% creates a standard, multi-purpose CV item with the given left and right column contents, parskip set to cvparskip
+% in the right column, and with appropriate vertical space after
+% @param #1 left column content
+% @param #2 right column content
+\newcommand{\cvitem}[2]{
+    % left and right column
+    \begin{minipage}[t]{\cvleftcolumnwidth}
+        \raggedleft #1
+    \end{minipage}% XXX necessary comment to avoid unwanted space
+    \hspace{\cvcolumngapwidth}% XXX necessary comment to avoid unwanted space
+    \begin{minipage}[t]{\cvrightcolumnwidth}
+        \setlength{\parskip}{\cvparskip} #2
+    \end{minipage}
+
+    % space after
+    \vspace{\cvafteritemskipamount}
+}
+
+% typesets a title, with appropriate vertical space after
+% @param #1 title text
+\newcommand{\cvtitle}[1]{
+    % title
+    \cvtitlestyle{#1}
+
+    % space after
+    \vspace{\cvaftertitleskipamount}
+    % XXX need to subtract cvparskip here, because it is automatically inserted after the title "paragraph"
+    \vspace{-\cvparskip}
+}
+
+
+% header and footer
+% -----------------
+
+% set empty header and footer
+\pagestyle{empty}
+
+% preamble end/document start
+% ===========================
+
+\begin{document}
+
+
+% personal info
+% -------------
+
+\cvpersonalinfo{
+    % name
+    \textbf{\Large{Ricardo Palma Fraga}}
+    
+}{
+        \vspace{-0.4cm}
+        \hspace{121mm}.com
+    \\* \null\hspace{96mm} \textbf{\large{rpalmafr}}\hspace{2mm}@ou.edu
+
+}
+
+\vspace{0.2cm}
+
+% education
+% ---------
+\cvsection{EDUCATION}
+\vspace{0.15cm}
+
+\cvitem{
+    \cvdurationstyle{2020 -- Present}
+}{
+    \cvtitle{PhD. in Industrial \& Systems Engineering}
+
+    Gallogly College of Engineering at the \emph{University of Oklahoma}
+    \vspace{0.15cm}
+    
+    \begin{itemize}[leftmargin=*]
+        \item Advisor: Dr. Ziho Kang
+        \item Focus: Human Factors \& Ergonomics, Neuroergonomics, Data Visualization, Machine Learning, Data Mining.
+
+    \end{itemize}
+}
+
+\cvitem{
+    \cvdurationstyle{2018 -- 2020}
+}{
+    \cvtitle{MSc. in Industrial \& Systems Engineering}
+
+    Gallogly College of Engineering at the \emph{University of Oklahoma} \hfill{GPA: 4.00}
+    \vspace{0.15cm}
+    
+    \begin{itemize}[leftmargin=*]
+    
+        \item Thesis: Multimodal Neuroergonomic Approaches to Human Behavior \& Cognitive Workload in Complex High-Risk Semantically Rich Environments: A Case Study of Local \& En-Route Air Traffic Controllers.
+
+    \end{itemize}
+}
+
+\cvitem{
+    \cvdurationstyle{2013 -- 2018}
+}{
+    \cvtitle{BSc. in Industrial \& Systems Engineering \emph{with Distinction}}
+
+    Gallogly College of Engineering at the \emph{University of Oklahoma} \hfill{GPA: 3.71}
+    \vspace{0.15cm}
+    
+    \begin{itemize}[leftmargin=*]
+        \item Capstone - \emph{Baker Hughes \& General Electric}: Simulation Analysis of the Thrust Chamber Assembly Area for Redesign and Transport.
+    \end{itemize}
+}
+\vspace{-0.15cm}
+% Research Experience
+
+\cvsection{RESEARCH EXPERIENCE}
+\vspace{0.15cm}
+
+\cvitem{
+\cvdurationstyle{2018 -- Present}
+\\* Graduate Research Assistant
+\vspace{0.15cm}
+
+\\*\cvdurationstyle{2017 -- 2018}
+\\* Undergraduate Research Assistant
+}{
+    \cvtitle{Human Factors \& Simulation Laboratory}
+
+    Under the supervision of Dr. Ziho Kang, Industrial \& Systems Engineering
+    \vspace{0.15cm}
+    
+    \begin{itemize}[leftmargin=*]
+    
+        \item Created computational algorithms to process raw eye tracking data into representative AOI-network visualizations.
+        \item Carried out a quantitative and qualitative retrospective protocol analysis of verbal data collected from expert air traffic controllers.
+        \item Applied a multi-modal approach (eye tracking and fNIRS) to explore the cognitive workload of veteran local air traffic controllers.
+        \item Adapted training materials of candidate air traffic controllers to their learning style using Universal Design for Learning theories.
+        \item Collected eye-tracking and interview data from 14 expert Air Traffic Controllers alongside the FAA in Minneapolis, Denver, Oklahoma City, and Orlando International Airports.
+        
+    \end{itemize}
+    
+}
+
+\cvitem{
+\cvdurationstyle{2016 -- 2017}
+\\* Undergraduate Research Assistant
+}{
+    \cvtitle{Human Memory \& Learning Laboratory}
+
+    Under the supervision of Dr. Daniel Kimball, Psychology
+    \vspace{0.15cm}
+    
+    \begin{itemize}[leftmargin=*]
+        \item Involved in the experimental design and data collection procedures of two projects regarding adaptive learning \& expertise.
+    \end{itemize}
+    
+}
+
+\vspace{-0.15cm}
+
+% work experience
+\cvsection{PROFESSIONAL EXPERIENCE}
+\vspace{0.15cm}
+
+\cvitem{
+\cvdurationstyle{2020 -- Present}
+\\* Board member
+\vspace{0.15cm}
+
+\\*\cvdurationstyle{2019 -- 2020}
+\\* Co-director
+\vspace{0.15cm}
+
+\\*\hspace{0.3cm}\cvdurationstyle{2017 -- 2019}
+\\* Volunteer
+}{
+    \cvtitle{Second Wind Coffeehouse}
+
+    A student-led non-profit organization based in \emph{Norman, Oklahoma}
+    \vspace{0.15cm}
+    
+    \begin{itemize}[leftmargin=*]
+    
+        \item Re-designed the point-of-sale system to collect consumer behavioral data and key performance indicators for products.
+        \item Improved inventory management system efficiency by 30\% through the development of forecasting models to predict biweekly demand.
+        \item Achieved financial self-sufficiency of a Pay-What-You-Can revenue management system through waste-reducing Lean Six Sigma methodologies.
+        
+    \end{itemize}
+}
+
+\cvitem{
+\cvdurationstyle{2017 -- 2018}
+\\* Supply Chain \& Logistics Intern
+}{
+    \cvtitle{Luggage With Love}
+
+    A non-profit organization supporting foster children in \emph{Oklahoma}
+    \vspace{0.15cm}
+    
+    \begin{itemize}[leftmargin=*]
+    
+        \item Improved the reliability of inventory management system by 20\% through the implementation of data collection, tracking and processing procedures of new inventory.
+        \item Developed a descriptive statistical analysis of multivariable historical data to identify key performance indicators based on targeted consumer groups.
+        
+    \end{itemize}
+    
+}
+
+\vspace{-0.15cm}
+
+% Teaching Experience
+
+\cvsection{TEACHING EXPERIENCE}
+\vspace{0.15cm}
+
+\cvitem{
+\cvdurationstyle{Fall - 2019, 2020}
+\\* Teaching Assistant
+}{
+    \cvtitle{Systems Analysis using Simulation (ISE 4663 \& ISE 5663)}
+
+    Industrial \& Systems Engineering \hfill{60 students}
+    \vspace{0.15cm}
+    
+    \begin{itemize}[leftmargin=*]
+    
+        \item Taught biweekly labs on several topics: stochastic simulation theories, terminal vs steady state systems, queuing theory, statistical analysis of performance measures, simulation modeling in ARENA.
+        \item Graded quizzes, exams, labs, and held office hours.
+
+        
+    \end{itemize}
+    
+}
+
+\cvitem{
+\cvdurationstyle{Fall - 2015, 2016}
+\\* Peer Educator
+
+
+}{
+    \cvtitle{Gateway: Academic Success (UCOL 1002)}
+
+    University College \hfill{25 students}
+    \vspace{0.15cm}
+    
+    \begin{itemize}[leftmargin=*]
+    
+        \item Engaged with recently admitted students to the University by engaging in topics such as: library use, time management, essential academic skills (critical reading, writing, listening as well as test taking), campus policies, campus resources, and career education.
+        
+    \end{itemize}
+    
+}\cvitem{
+\cvdurationstyle{Spring - 2016, 2017}
+\\* Peer Educator
+
+
+}{
+    \cvtitle{Gateway: Strategies for Success (UCOL 2002)}
+
+    University College \hfill{25 students}
+    \vspace{0.15cm}
+    
+    \begin{itemize}[leftmargin=*]
+    
+        \item Mentored students placed in academic probation, notice, or who need academic assistance. Taught several lessons emphasizing: study skills, time management, motivation, and goal setting.
+
+    \end{itemize}
+    
+}\cvitem{
+\cvdurationstyle{Summer - 2016, 2017}
+\\* Peer Educator
+
+
+}{
+    \cvtitle{Do You Understand Integrity? (UNIV 1000)}
+
+    Integrity Council \hfill{10 students}
+    \vspace{0.15cm}
+    
+    \begin{itemize}[leftmargin=*]
+    
+        \item Worked with students that engaged in academic misconduct. The course focuses on understanding integrity at the University and how the principles of integrity extend into our lives.
+
+        
+    \end{itemize}
+    
+}
+\vspace{-0.15cm}
+
+% Skills
+% ------
+\cvsection{TECHNICAL SKILLS}
+
+\vspace{\cvbetweensectionandheadingextraskipamount}
+
+% Programming languages
+\cvitem{
+    \cvheadingstyle{Programming languages}
+}{
+    Proficient in R; good working knowledge of Python \& Matlab. 
+}
+
+% Databases and data
+\cvitem{
+    \cvheadingstyle{Databases \& data}
+}{
+    SQL (MySQL), R (dplyr, tidyr), Python (pandas, numpy)
+}
+
+% Data Visualization
+\cvitem{
+    \cvheadingstyle{Data visualization}
+}{
+    R (ggplot2), Python (matplotlib, seaborn)
+}
+
+% Machine learning
+\cvitem{
+    \cvheadingstyle{Machine learning}
+}{
+    R (caret, tidyverse, forecast), Python (scikit-learn, Gurobi)
+}
+
+% Speciality
+\cvitem{
+    \cvheadingstyle{Speciality}
+}{
+    Tobii Pro Lab \& Studio, ARENA, \LaTeX, Alexa Skills Kit, HTML, Git
+}
+
+% Certifications
+\cvitem{
+    \cvheadingstyle{Certifications}
+}{
+    Lean Six Sigma Greenbelt, Engineer-in-Training (\emph{Oklahoma})
+}
+
+
+% additional info
+% ---------------
+
+\cvsection{HONORS \& PROFESSIONAL ORGANIZATIONS}
+
+\vspace{\cvbetweensectionandheadingextraskipamount}
+
+% Awards
+\cvitem{
+    \cvheadingstyle{Awards}
+}{
+    Commendation from the Governor of \emph{Oklahoma} \hfill{(2017)}
+    \\* First Place - Amazon's Alexa Hackathon at the \emph{University of Oklahoma} \hfill{(2017)}
+    \\* Best Student Presentation at the FAA's COE TTHP \hfill{(2018, 2019)}
+    \\* Dean's Honor Roll \hfill{(2015, 2016, 2017, 2018)}
+    \\* President's Honor Roll \hfill{(2016, 2018)}
+    \\* International Student of the Month for the Norman Lions' Club \hfill{(2014)}
+
+}
+
+% Scholarships
+\cvitem{
+    \cvheadingstyle{Fellowships \& scholarships}
+}{
+PhD. Recruitment Excellence Fellowship \hfill{(2020)}
+\\*Industrial \& Systems Engineering Advisory Board Scholarship \hfill{(2018, 2020)}
+\\* Cleo Cross Scholarship \hfill{(2020)}
+\\* JMA Solutions Scholarship \hfill{(2018)}
+\\* George T. Gibson Industrial & Systems Engineering Scholarship \hfill{(2015)}
+
+}
+
+% Professional Organizations
+\cvitem{
+    \cvheadingstyle{Organizations}
+}{
+Member of the Human Factors \& Ergonomics Society (HFES) \hfill{(2020 - Present)}
+\\* HFES Chapter Vice-president at the \emph{University of Oklahoma} \hfill{(2020 - Present)}
+\\* Member of the Integrity Council at the \emph{University of Oklahoma} \hfill{(2016 - 2018)}
+
+}
+
+\cvsection{PUBLICATIONS \& PRESENTATIONS}
+
+\vspace{\cvbetweensectionandheadingextraskipamount}
+
+% Awards
+\cvitem{
+    \cvheadingstyle{Conference proceedings}
+}{
+    \textbf{Palma Fraga, R.}, Reddy, Y. P., Kang, Z., Izzetoglu, K. (2020). Multimodal analysis using neuroimaging and eye movements to assess cognitive workload. In Proceedings of the 22nd International Conference on Human-Computer Interaction, Jul. 19-24, Copenhagen, Denmark.
+    \vspace{0.3cm}
+    \\* \textbf{Palma Fraga, R.}, Kang, Z. and Mandal, S. (2018). Characterization of air traffic controllers’ visual search patterns and control strategies. In Proceedings of the 2018 ICSTEM, The International Society for Engineers and Researchers, Jun. 18-19, Seoul, S. Korea. 
+
+
+}
+
+\cvitem{
+    \cvheadingstyle{Technical reports}
+}{
+    Kang, Z., Shehab, R. L., Ding, L, Yuan, H., \textbf{Palma Fraga, R.}, Yeagle, L. N., Alhashim, A., Plata, M. R., Dragoo, M. R. (2019). Universal design for learning and multimodal training. pp. 1-177. Federal Aviation Administration.
+    \vspace{0.3cm}
+    \\* Kang, Z., Dyer, J. W., West, S. G., \textbf{Palma Fraga, R.}, Mandal, S., Egwu, K, and McClung. S. N. (2018). Characterization and application of air traffic controllers’ visual search patterns and control strategies for efficient and effective training. pp. 1- 282. Federal Aviation Administration.
+
+
+}
+\cvitem{
+    \cvheadingstyle{Poster presentations}
+}{
+    Kang, Z., Shehab, R. L., Ding, L., Yaun, H., West, S. G., Dragoo, M. R., Yeagle, L. N., \textbf{Palma Fraga, R.}, and Rippetoe, J. (2018). Characterization of air traffic controllers’ visual search patterns and control strategies (poster exhibition). In Proceedings of the 2018 Interservice/ Industry Training, Simulation and Education Conference (I/ITSEC), Nov. 26-30, Orlando, FL.
+    \vspace{0.3cm}
+    \\* Kang, Z., Shehab, R. L., Ding, L., Yaun, H., West, S. G., Dragoo, M. R., Yeagle, L. N., \textbf{Palma Fraga, R.}, and Rippetoe, J. (2018). Adaptive learning pedagogy of Universal Design for Learning (UDL) for multimodal training (poster exhibition). In Proceedings of the 2018 Interservice/ Industry Training, Simulation and Education Conference (I/ITSEC), Nov. 26-30, Orlando, FL.
+    \vspace{0.3cm}
+    \\* Kang, Z., Dyer, J., West, S. G., Mandal, S., \textbf{Palma Fraga, R.}, McClung, S., and Egwu, U. K. (2017). Characterization of visual scanning patterns and aircraft control strategies for efficient and effective 6 training. Poster session in Solutions for Operational Aviation Research (SOAR) Q2 meeting, Federal Aviation Administration Center of Excellence, Apr. 3-5, Philadelphia, PA.
+    \vspace{0.3cm}
+    \\* Kang, Z., Shehab, R. L., Ding, L., Yaun, H., West, S. G., Dragoo, M. R., Yeagle, L. N., \textbf{Palma Fraga, R.}, and Rippetoe, J. (2017). Universal Design for Learning and Multimodal Training. Poster session in Solutions for Operational Aviation Research (SOAR) Q3 meeting, Federal Aviation Administration Center of Excellence, Apr. 3-5. Philadelphia, PA. 
+    \vspace{0.3cm}
+    \\* Kang, Z., Shehab, R. L., Ding, L., Yaun, H., West, S. G., Dragoo, M. R., Yeagle, L. N., \textbf{Palma Fraga, R.}, and Rippetoe, J. (2017). Universal Design for Learning and Multimodal Training. Solutions for Operational Aviation Research (SOAR) Q4 meeting, Federal Aviation Administration Center of Excellence, FAA headquarters, Jun. 11-15, Washington D.C. 
+    \vspace{0.3cm}
+    \\*Kang, Z., Dyer, J., West, S. G., Mandal, S., \textbf{Palma Fraga, R.}, McClung, S., and Egwu, U. K. (2017) Characterization of visual scanning patterns and aircraft control strategies for efficient and effective training. Solutions for Operational Aviation Research (SOAR) Q4 meeting, Federal Aviation Administration Center of Excellence, FAA headquarters, Jun. 11-15, Washington D.C. 
+}
+\end{document}
